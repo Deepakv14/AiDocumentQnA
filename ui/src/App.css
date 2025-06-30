@@ -1,0 +1,111 @@
+body {
+  background-color: #e5ddd5;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.app-container {
+  max-width: 450px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+h2 {
+  background-color: #075e54;
+  color: white;
+  padding: 15px;
+  margin: 0;
+  text-align: center;
+}
+
+.upload-section,
+.ask-section {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  background-color: #f0f0f0;
+}
+
+.chat-window {
+    padding: 15px;
+    height: 250px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scrollbar-width: none;
+}
+
+.user-msg,
+.ai-msg {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+
+.user-msg {
+  background-color: #008B8B;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+  color:white;
+}
+
+.ai-msg {
+  background-color: #ffffff;
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+}
+
+.ask-section input[type='text'] {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.upload-section input[type='file'] {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+button {
+  background-color: #075e54;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #128c7e;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: bold;
+   background-color: #f0f0f0;
+}
+
+.success-message {
+  color: #2e7d32;
+ font-size: 12px;
+  font-weight: bold;
+   background-color: #f0f0f0;
+}
+
