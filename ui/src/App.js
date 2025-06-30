@@ -4,7 +4,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import "./App.css";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://ai-doc-backend.onrender.com");
 
 function App() {
   const [pdf, setPdf] = useState(null);
@@ -43,7 +43,7 @@ function App() {
     try {
       const formData = new FormData();
       formData.append("file", pdf);
-      const res = await axios.post("http://localhost:5000/api/chat/upload", formData);
+      const res = await axios.post("https://ai-doc-backend.onrender.com/api/chat/upload", formData);
       setSessionId(res.data.sessionId);
       setChat([]);
       setError("");
