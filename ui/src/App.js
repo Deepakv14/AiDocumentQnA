@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -13,15 +12,18 @@ function App() {
   const [chat, setChat] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [awaitingSummary, setAwaitingSummary] = useState(false);
   const chatWindowRef = useRef(null);
 
   useEffect(() => {
     socket.on("answer", (data) => {
       if (data.answer) {
         setChat((prev) => [...prev, { role: "assistant", content: data.answer }]);
+        setAwaitingSummary(false); // Disable loading once first response received
         setError("");
       } else if (data.error) {
         setError(data.error);
+        setAwaitingSummary(false);
       }
     });
 
@@ -48,8 +50,9 @@ function App() {
       setChat([]);
       setError("");
       setSuccess("✅ PDF uploaded and processed successfully. You can now ask questions.");
+      setAwaitingSummary(true); // Wait for first response
 
-      // Request summary from backend right after upload
+      // Request summary from backend
       socket.emit("ask", {
         question: "Please summarize the uploaded document.",
         sessionId: res.data.sessionId
@@ -58,11 +61,12 @@ function App() {
     } catch (err) {
       setError("*Failed to upload and process PDF. Please try again.");
       setSuccess("");
+      setAwaitingSummary(false);
     }
   };
 
   const handleAsk = () => {
-    if (!question.trim() || !sessionId) return;
+    if (!question.trim() || !sessionId || awaitingSummary) return;
     const userMsg = { role: "user", content: question };
     setChat((prev) => [...prev, userMsg]);
     socket.emit("ask", { question, sessionId });
@@ -87,6 +91,9 @@ function App() {
 
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
+      {awaitingSummary && (
+        <div className="loading-message">⏳ Loading document summary...</div>
+      )}
 
       <div className="chat-window" ref={chatWindowRef}>
         {chat.map((msg, idx) => (
@@ -103,9 +110,9 @@ function App() {
           placeholder="Type your query..."
           onChange={(e) => setQuestion(e.target.value)}
           onKeyPress={handleKeyPress}
-          disabled={!sessionId}
+          disabled={!sessionId || awaitingSummary}
         />
-        <button onClick={handleAsk} disabled={!sessionId}>Ask</button>
+        <button onClick={handleAsk} disabled={!sessionId || awaitingSummary}>Ask</button>
       </div>
     </div>
   );
