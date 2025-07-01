@@ -14,7 +14,12 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const sessionId = uuidv4();
     const fileBuffer = req.file.buffer;
-    const text = await extractTextFromPDF(fileBuffer);
+    let text = await extractTextFromPDF(fileBuffer);
+
+    const MAX_CHARS = 15000; // ✅ safe input length
+    if (text.length > MAX_CHARS) {
+      text = text.slice(0, MAX_CHARS);
+    }
 
     conversations[sessionId] = {
       pdfText: text,
@@ -41,7 +46,9 @@ router.post("/ask", async (req, res) => {
 
   const { pdfText, messages } = conversations[sessionId];
 
-  messages.push({ role: "user", content: question });
+  // Only keep last 3 messages to stay under token limit
+  const lastFew = messages.slice(-3);
+  lastFew.push({ role: "user", content: question });
 
   try {
     const response = await axios.post(
@@ -49,12 +56,14 @@ router.post("/ask", async (req, res) => {
       {
         model: "meta-llama/Llama-3-8b-chat-hf",
         messages: [
-          ...messages.slice(0, 1), // system prompt
+          messages[0], // system prompt
           {
             role: "user",
             content: `Use the following document:\n\n${pdfText}\n\nQuestion: ${question}`,
           },
         ],
+        max_tokens: 512, // ✅ avoid exceeding limit
+        temperature: 0.7
       },
       {
         headers: {
@@ -65,6 +74,7 @@ router.post("/ask", async (req, res) => {
     );
 
     const answer = response.data.choices[0].message.content;
+    messages.push({ role: "user", content: question });
     messages.push({ role: "assistant", content: answer });
 
     res.json({ answer, history: messages.slice(1) }); // exclude system
